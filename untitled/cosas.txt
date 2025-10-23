@@ -1,0 +1,175 @@
+De int a String
+int n = 42;
+String s1 = String.valueOf(n);
+String s2 = Integer.toString(n);
+// También: String s3 = "" + n;  // funciona, pero menos explícito
+
+De double a String
+double x = 3.14159;
+String s1 = String.valueOf(x);
+String s2 = Double.toString(x);
+// Para formatear: String s3 = String.format("%.2f", x);  // "3.14"
+
+De char a String
+char c = 'A';
+String s1 = String.valueOf(c);
+String s2 = Character.toString(c);
+// También: String s3 = "" + c;
+
+De String a int
+String s = "123";
+int n = Integer.parseInt(s);  // lanza NumberFormatException si no es número
+// Variante que devuelve Integer (wrapper):
+Integer N = Integer.valueOf(s);
+
+De String a double
+String s = "3.14";            // OJO: usa punto decimal (.)
+double x = Double.parseDouble(s);  // puede lanzar NumberFormatException
+// Variante wrapper:
+Double X = Double.valueOf(s);
+
+De String a char
+String s = "Z";
+char c = s.charAt(0);   // Asegúrate de que s.length() >= 1
+// Si esperas exactamente 1 carácter, valida:
+if (s != null && s.length() == 1) {
+    char c2 = s.charAt(0);
+}
+
+Notas y buenas prácticas
+
+Validación: parseInt y parseDouble lanzan NumberFormatException si el String no es válido. Usa try/catch:
+
+try {
+    int n = Integer.parseInt(s);
+} catch (NumberFormatException e) {
+    // manejar error
+}
+
+
+Locales: Double.parseDouble espera punto (.) como separador decimal. Si recibes comas ("3,14"), usa NumberFormat con Locale:
+
+NumberFormat nf = NumberFormat.getInstance(Locale.forLanguageTag("es-ES"));
+double x = nf.parse("3,14").doubleValue();  // requiere manejar ParseException
+
+
+Null-safety: String.valueOf(null) devuelve "null". Si no lo quieres, valida null antes.
+
+Casting vs conversión: en Java no hay cast directo entre String y numéricos; se usan métodos de las clases wrapper (Integer, Double) o String.valueOf.
+
+De array a String
+
+Si quieres ver el contenido (debug/log):
+
+int[] a = {1, 2, 3};
+String s = java.util.Arrays.toString(a);           // "[1, 2, 3]"
+
+String[][] m = { {"a","b"}, {"c","d"} };
+String s2 = java.util.Arrays.deepToString(m);      // "[[a, b], [c, d]]"
+
+
+Si el array es de String y quieres unir con separador:
+
+String[] arr = {"Juan", "Ana", "Luis"};
+String s = String.join(", ", arr);                 // "Juan, Ana, Luis"
+
+
+Si el array es de char:
+
+char[] chars = {'H','o','l','a'};
+String s = new String(chars);                      // "Hola"
+
+De String a array
+
+A array de caracteres (char[]):
+
+String s = "Hola";
+char[] chars = s.toCharArray();                    // {'H','o','l','a'}
+
+
+A array de tokens (por separador):
+
+String s = "uno,dos,tres";
+String[] arr = s.split(",");                       // {"uno","dos","tres"}
+// Con espacios:
+String[] arr2 = s.split("\\s*,\\s*");              // recorta espacios alrededor de la coma
+
+De array a ArrayList
+
+Array de referencia (ej. String[]):
+
+String[] arr = {"A","B","C"};
+java.util.ArrayList<String> list = new java.util.ArrayList<>(java.util.Arrays.asList(arr));
+
+
+Array primitivo (ej. int[]) – usa streams para autoboxing:
+
+int[] a = {1, 2, 3};
+java.util.ArrayList<Integer> list =
+    java.util.Arrays.stream(a).boxed()
+        .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
+De ArrayList a array
+
+Lista de referencia:
+
+java.util.ArrayList<String> list = new java.util.ArrayList<>();
+list.add("x"); list.add("y");
+String[] arr = list.toArray(new String[0]);        // tamaño 0 es lo más usado
+
+
+Lista de números a primitivos (p.ej. ArrayList<Integer> → int[]):
+
+java.util.ArrayList<Integer> list = new java.util.ArrayList<>();
+list.add(10); list.add(20);
+int[] a = list.stream().mapToInt(Integer::intValue).toArray();
+
+De ArrayList a String
+
+Para imprimir contenido (debug/log):
+
+java.util.ArrayList<Integer> list = new java.util.ArrayList<>();
+list.add(1); list.add(2);
+String s = list.toString();                        // "[1, 2]"
+
+
+Unir elementos con separador (lista de String):
+
+java.util.ArrayList<String> list = new java.util.ArrayList<>();
+list.add("Juan"); list.add("Ana");
+String s = String.join(" | ", list);               // "Juan | Ana"
+
+
+Lista genérica a String formateado:
+
+java.util.ArrayList<Double> list = new java.util.ArrayList<>();
+list.add(3.14); list.add(2.71);
+String s = list.stream()
+               .map(Object::toString)
+               .collect(java.util.stream.Collectors.joining(", ")); // "3.14, 2.71"
+
+De String a ArrayList
+
+A lista de caracteres:
+
+String s = "Hola";
+java.util.ArrayList<Character> list = s.chars()
+    .mapToObj(c -> (char) c)
+    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
+
+A lista de tokens por separador:
+
+String s = "uno, dos, tres";
+java.util.ArrayList<String> list = java.util.Arrays.stream(s.split("\\s*,\\s*"))
+    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
+Notas rápidas
+
+Arrays.asList(arr) sobre arrays primitivos produce una lista de un solo elemento (el array entero). Para primitivos usa streams y boxed().
+
+list.toString() y Arrays.toString() son útiles para representación, no para un formato estable de datos.
+
+Para CSV/TSV reales usa String.join/split con cuidado de comillas, o una librería (OpenCSV, etc.).
+
+Valida nulos y vacíos: split sobre "" devuelve new String[]{""}; si quieres lista vacía, filtra con .filter(s -> !s.isEmpty()).

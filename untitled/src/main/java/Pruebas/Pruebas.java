@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 public class Pruebas {
     public static void main(String[] args) {
@@ -44,6 +45,10 @@ public class Pruebas {
 //          Boolean isAlive() → Comprueba si el proceso todavía está en ejecución
 //        Boolean isAlive() → Comprueba si el proceso todavía está en ejecución
 
+        String cadena = "Hola";
+        char[] array = cadena.toCharArray();
+
+        System.out.println(Arrays.toString(array));
 
     }
 }
